@@ -43,3 +43,42 @@ func (c *Client) SendWebmention(endpoint, source, target string) (*http.Response
 	}
 	return resp, nil
 }
+
+// DiscoverEndpoint discovers the webmention endpoint for the provided URL.
+func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
+	resp, err := c.Client.Get(urlStr)
+	if err != nil {
+		return "", err
+	}
+	if code := resp.StatusCode; code < 200 || 300 <= code {
+		return "", fmt.Errorf("response error: %v", resp.StatusCode)
+	}
+
+	endpoint, err := extractEndpoint(resp)
+	if err != nil {
+		return "", err
+	}
+
+	// resolve relative endpoint URLs
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		return "", fmt.Errorf("error parsing URL %q: %v", urlStr, err)
+	}
+
+	e, err := url.Parse(endpoint)
+	if err != nil {
+		return "", fmt.Errorf("error parsing URL %q: %v", endpoint, err)
+	}
+
+	return u.ResolveReference(e).String(), nil
+}
+
+func extractEndpoint(resp *http.Response) (string, error) {
+	// TODO: check response headers first
+
+	endpoint, err := htmlLink(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return endpoint, nil
+}
