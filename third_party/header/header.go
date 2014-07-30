@@ -162,6 +162,45 @@ func ParseValueAndParams(header http.Header, key string) (value string, params m
 	return
 }
 
+// Link identifies a parsed HTTP Link header.
+type Link struct {
+	Href string
+	Rel  []string
+
+	// TODO: add other link params
+}
+
+// ParseLink parses an individual HTTP Link header value.  Callers should first
+// call ParseList to split the raw header string into its values.
+func ParseLink(s string) (link Link) {
+	link.Href, s = expectLinkValue(s)
+	if link.Href == "" {
+		return
+	}
+	s = skipSpace(s)
+	for strings.HasPrefix(s, ";") {
+		var pkey string
+		pkey, s = expectToken(skipSpace(s[1:]))
+		if pkey == "" {
+			return
+		}
+		if !strings.HasPrefix(s, "=") {
+			return
+		}
+		var pvalue string
+		pvalue, s = expectTokenOrQuoted(s[1:])
+		if pvalue == "" {
+			return
+		}
+		switch {
+		case pkey == "rel" && len(link.Rel) == 0:
+			link.Rel = strings.Split(pvalue, " ")
+		}
+		s = skipSpace(s)
+	}
+	return
+}
+
 type AcceptSpec struct {
 	Value string
 	Q     float64
@@ -229,6 +268,19 @@ func expectTokenSlash(s string) (token, rest string) {
 		}
 	}
 	return s[:i], s[i:]
+}
+
+func expectLinkValue(s string) (token, rest string) {
+	if s[0] != '<' {
+		return "", s
+	}
+	i := 1
+	for ; i < len(s); i++ {
+		if s[i] == '>' {
+			break
+		}
+	}
+	return s[1:i], s[i+1:]
 }
 
 func expectQuality(s string) (q float64, rest string) {

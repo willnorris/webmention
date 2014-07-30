@@ -136,3 +136,19 @@ func TestParseAccept(t *testing.T) {
 		}
 	}
 }
+
+func TestParseLink(t *testing.T) {
+	tests := []struct {
+		s    string
+		want Link
+	}{
+		{`</foo>; rel="a"`, Link{"/foo", []string{"a"}}},
+		{`</foo>; rel="a b"; rel="c"`, Link{"/foo", []string{"a", "b"}}},
+	}
+
+	for _, tt := range tests {
+		if got := ParseLink(tt.s); !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("ParseLink(%q) = %v, want %v", tt.s, got, tt.want)
+		}
+	}
+}
