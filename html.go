@@ -75,3 +75,35 @@ func parseLinkNode(n *html.Node) string {
 	}
 	return ""
 }
+
+// parseLinks parses r as HTML and returns all URLs linked to (from either a
+// <link> or <a> element).
+//
+// TODO: return full links rather than just URLs, since other metadata may be useful
+// TODO: only parse links from the main content of hte page (identified by <main> element, h-entry, etc)
+func parseLinks(r io.Reader) ([]string, error) {
+	doc, err := html.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var urls []string
+
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && (n.Data == "link" || n.Data == "a") {
+			for _, a := range n.Attr {
+				if a.Key == "href" {
+					urls = append(urls, a.Val)
+					break
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+
+	f(doc)
+	return urls, nil
+}

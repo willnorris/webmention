@@ -8,6 +8,7 @@ package webmention
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 )
 
@@ -48,6 +49,26 @@ func TestHtmlLink(t *testing.T) {
 			t.Errorf("htmlLink(%q) returned error: %v", tt.input, err)
 		} else if want := tt.want; got != want {
 			t.Errorf("htmlLink(%q) returned %v, want %v", tt.input, got, want)
+		}
+	}
+}
+
+func TestParseLinks(t *testing.T) {
+	tests := []struct {
+		input string
+		want  []string
+	}{
+		{`<a href="a">`, []string{"a"}},
+		{`<a href="a"><a href="b">`, []string{"a", "b"}},
+		{`<a href="a"><link href="b">`, []string{"a", "b"}},
+	}
+
+	for _, tt := range tests {
+		buf := bytes.NewBufferString(tt.input)
+		if got, err := parseLinks(buf); err != nil {
+			t.Errorf("parseLinks(%q) returned error: %v", tt.input, err)
+		} else if want := tt.want; !reflect.DeepEqual(got, want) {
+			t.Errorf("parseLinks(%q) returned %v, want %v", tt.input, got, want)
 		}
 	}
 }

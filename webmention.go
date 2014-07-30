@@ -52,6 +52,7 @@ func (c *Client) SendWebmention(endpoint, source, target string) (*http.Response
 
 // DiscoverEndpoint discovers the webmention endpoint for the provided URL.
 func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
+	// TODO: do a HEAD request first and check headers, then do a GET only if necessary
 	resp, err := c.Client.Get(urlStr)
 	if err != nil {
 		return "", err
@@ -59,6 +60,7 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 	if code := resp.StatusCode; code < 200 || 300 <= code {
 		return "", fmt.Errorf("response error: %v", resp.StatusCode)
 	}
+	defer resp.Body.Close()
 
 	endpoint, err := extractEndpoint(resp)
 	if err != nil {
@@ -94,4 +96,20 @@ func extractEndpoint(resp *http.Response) (string, error) {
 		return "", err
 	}
 	return endpoint, nil
+}
+
+// DiscoverLinks discovers URLs that the provided resource links to.  These are
+// candidates for sending webmentions to.
+func (c *Client) DiscoverLinks(urlStr string) ([]string, error) {
+	resp, err := c.Client.Get(urlStr)
+	if err != nil {
+		return nil, err
+	}
+	if code := resp.StatusCode; code < 200 || 300 <= code {
+		return nil, fmt.Errorf("response error: %v", resp.StatusCode)
+	}
+	defer resp.Body.Close()
+
+	// TODO: should we include HTTP header links?
+	return parseLinks(resp.Body)
 }
