@@ -56,19 +56,24 @@ func TestHtmlLink(t *testing.T) {
 func TestParseLinks(t *testing.T) {
 	tests := []struct {
 		input string
+		sel   string
 		want  []string
 	}{
-		{`<a href="a">`, []string{"a"}},
-		{`<a href="a"><a href="b">`, []string{"a", "b"}},
-		{`<a href="a"><link href="b">`, []string{"a", "b"}},
+		{`<a href="a">`, "", []string{"a"}},
+		{`<a href="a"><a href="b">`, "", []string{"a", "b"}},
+		{`<a href="a"><link href="b">`, "", []string{"a", "b"}},
+
+		// with selector
+		{`<link href="a"><main><a href="b"></main>`, "main", []string{"b"}},
+		{`<link href="a"><div class="h-entry"><a href="b"></div>`, ".h-entry", []string{"b"}},
 	}
 
 	for _, tt := range tests {
 		buf := bytes.NewBufferString(tt.input)
-		if got, err := parseLinks(buf); err != nil {
-			t.Errorf("parseLinks(%q) returned error: %v", tt.input, err)
+		if got, err := parseLinks(buf, tt.sel); err != nil {
+			t.Errorf("parseLinks(%q, %q) returned error: %v", tt.input, tt.sel, err)
 		} else if want := tt.want; !reflect.DeepEqual(got, want) {
-			t.Errorf("parseLinks(%q) returned %v, want %v", tt.input, got, want)
+			t.Errorf("parseLinks(%q, %q) returned %v, want %v", tt.input, tt.sel, got, want)
 		}
 	}
 }

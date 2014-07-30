@@ -10,6 +10,7 @@ import (
 	"io"
 	"strings"
 
+	"code.google.com/p/cascadia"
 	"code.google.com/p/go.net/html"
 )
 
@@ -77,33 +78,47 @@ func parseLinkNode(n *html.Node) string {
 }
 
 // parseLinks parses r as HTML and returns all URLs linked to (from either a
-// <link> or <a> element).
+// <link> or <a> element).  If non-empty, rootSelector is a CSS selector
+// identifying the root node(s) to search in for links.
 //
 // TODO: return full links rather than just URLs, since other metadata may be useful
-// TODO: only parse links from the main content of hte page (identified by <main> element, h-entry, etc)
-func parseLinks(r io.Reader) ([]string, error) {
+func parseLinks(r io.Reader, rootSelector string) ([]string, error) {
 	doc, err := html.Parse(r)
 	if err != nil {
 		return nil, err
 	}
 
+	var sel cascadia.Selector
+	if rootSelector != "" {
+		sel, err = cascadia.Compile(rootSelector)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var urls []string
 
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && (n.Data == "link" || n.Data == "a") {
-			for _, a := range n.Attr {
-				if a.Key == "href" {
-					urls = append(urls, a.Val)
-					break
+	var f func(*html.Node, bool)
+	f = func(n *html.Node, capture bool) {
+		capture = capture || sel.Match(n)
+		if capture {
+			if n.Type == html.ElementNode && (n.Data == "link" || n.Data == "a") {
+				for _, a := range n.Attr {
+					if a.Key == "href" {
+						urls = append(urls, a.Val)
+						break
+					}
 				}
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
+			f(c, capture)
 		}
 	}
 
-	f(doc)
+	// if no selector specified, capture everything
+	capture := (sel == nil)
+
+	f(doc, capture)
 	return urls, nil
 }

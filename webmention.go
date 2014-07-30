@@ -93,8 +93,9 @@ func extractEndpoint(resp *http.Response) (string, error) {
 }
 
 // DiscoverLinks discovers URLs that the provided resource links to.  These are
-// candidates for sending webmentions to.
-func (c *Client) DiscoverLinks(urlStr string) ([]string, error) {
+// candidates for sending webmentions to.  If non-empty, sel is a CSS selector
+// identifying the root node(s) to search in for links.
+func (c *Client) DiscoverLinks(urlStr string, sel string) ([]string, error) {
 	resp, err := c.Client.Get(urlStr)
 	if err != nil {
 		return nil, err
@@ -105,7 +106,7 @@ func (c *Client) DiscoverLinks(urlStr string) ([]string, error) {
 	defer resp.Body.Close()
 
 	// TODO: should we include HTTP header links?
-	links, err := parseLinks(resp.Body)
+	links, err := parseLinks(resp.Body, sel)
 	if err != nil {
 		return nil, err
 	}
