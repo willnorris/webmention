@@ -71,17 +71,11 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 	}
 
 	// resolve relative endpoint URLs
-	u, err := url.Parse(urlStr)
+	urls, err := resolveReferences(urlStr, endpoint)
 	if err != nil {
-		return "", fmt.Errorf("error parsing URL %q: %v", urlStr, err)
+		return "", err
 	}
-
-	e, err := url.Parse(endpoint)
-	if err != nil {
-		return "", fmt.Errorf("error parsing URL %q: %v", endpoint, err)
-	}
-
-	return u.ResolveReference(e).String(), nil
+	return urls[0], err
 }
 
 func extractEndpoint(resp *http.Response) (string, error) {
@@ -111,5 +105,34 @@ func (c *Client) DiscoverLinks(urlStr string) ([]string, error) {
 	defer resp.Body.Close()
 
 	// TODO: should we include HTTP header links?
-	return parseLinks(resp.Body)
+	links, err := parseLinks(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	urls, err := resolveReferences(urlStr, links...)
+	if err != nil {
+		return nil, err
+	}
+	return urls, nil
+}
+
+// resolveReferences resolves each URL in refs into an absolute URL relative to
+// base.  If base is not a valid URL, an error is returned.  If one of the
+// values in refs is not a valid URL, it is skipped.
+func resolveReferences(base string, refs ...string) ([]string, error) {
+	b, err := url.Parse(base)
+	if err != nil {
+		return nil, err
+	}
+
+	var urls []string
+	for _, r := range refs {
+		u, err := url.Parse(r)
+		if err != nil {
+			continue
+		}
+		urls = append(urls, b.ResolveReference(u).String())
+	}
+	return urls, nil
 }
