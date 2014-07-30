@@ -54,14 +54,26 @@ func TestClient_SendWebmention(t *testing.T) {
 func TestClient_DiscoverEndpoint(t *testing.T) {
 	mux, server, cleanup := testServer()
 	defer cleanup()
+	client := New(nil)
 
+	// valid request with link
 	mux.HandleFunc("/good", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `<link href="/endpoint" rel="webmention">`)
 	})
 
-	client := New(nil)
 	want := server.URL + "/endpoint" // want absolute URL
 	if got, err := client.DiscoverEndpoint(server.URL + "/good"); err != nil {
+		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/good", err)
+	} else if got != want {
+		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/good", got, want)
+	}
+
+	// valid request with no link
+	mux.HandleFunc("/nolink", func(w http.ResponseWriter, r *http.Request) {
+	})
+
+	want = ""
+	if got, err := client.DiscoverEndpoint(server.URL + "/nolink"); err != nil {
 		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/good", err)
 	} else if got != want {
 		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/good", got, want)

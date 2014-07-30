@@ -64,6 +64,9 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if endpoint == "" {
+		return endpoint, nil
+	}
 
 	// resolve relative endpoint URLs
 	u, err := url.Parse(urlStr)
