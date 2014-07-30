@@ -74,8 +74,12 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 }
 
 func extractEndpoint(resp *http.Response) (string, error) {
-	// TODO: check response headers first
+	// first check http link headers
+	if endpoint := httpLink(resp.Header); endpoint != "" {
+		return endpoint, nil
+	}
 
+	// then look in the HTML body
 	endpoint, err := htmlLink(resp.Body)
 	if err != nil {
 		return "", err

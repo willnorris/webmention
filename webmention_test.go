@@ -72,15 +72,20 @@ func TestExtractEndpoint(t *testing.T) {
 		resp string // raw response header and body
 		want string // wanted endpoint URL
 	}{
-		// TODO: tests for extracting from headers
+		{
+			`Link: </endpoint>; rel="webmention"
+
+`,
+			"/endpoint",
+		},
 		{
 			`
 <link href="/endpoint" rel="webmention">`,
 			"/endpoint",
 		},
 		{
-			`
-<link href="/endpoint1" rel="webmention">
+			`Link: </endpoint1>; rel="webmention"
+
 <link href="/endpoint2" rel="webmention">`,
 			"/endpoint1",
 		},
