@@ -12,6 +12,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -20,26 +21,45 @@ import (
 	"willnorris.com/go/webmention"
 )
 
+const usageText = `webmention is a tool for sending webmentions.
+
+Usage:
+	webmention [flags] <url>
+
+Flags:
+`
+
 var (
 	client *webmention.Client
-	url    string
+	input  string
 
 	selector = flag.String("selector", ".h-entry", "CSS Selector limiting where to look for links")
 )
 
 func main() {
 	flag.Parse()
-
-	client = webmention.New(nil)
-	url = flag.Arg(0)
-	if url == "" {
-		fatalf("Must provide url")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, usageText)
+		flag.PrintDefaults()
 	}
 
-	fmt.Printf("Searching for links from %q to send webmentions to...\n\n", url)
-	dl, err := client.DiscoverLinks(url, *selector)
+	client = webmention.New(nil)
+	input = flag.Arg(0)
+	if input == "" {
+		flag.Usage()
+		return
+	}
+
+	if u, err := url.Parse(input); err != nil {
+		fatalf("Not a valid URL: %q", input)
+	} else if !u.IsAbs() {
+		fatalf("URL %q is not an absolute URL", input)
+	}
+
+	fmt.Printf("Searching for links from %q to send webmentions to...\n\n", input)
+	dl, err := client.DiscoverLinks(input, *selector)
 	if err != nil {
-		fatalf("error discovering links for %q: %v", url, err)
+		fatalf("error discovering links for %q: %v", input, err)
 	}
 	var links []link
 	for _, l := range dl {
@@ -113,7 +133,7 @@ func sendWebmentions(links []link) {
 			continue
 		}
 
-		_, err = client.SendWebmention(endpoint, url, l.url)
+		_, err = client.SendWebmention(endpoint, input, l.url)
 		if err != nil {
 			errorf("%v", err)
 			continue
