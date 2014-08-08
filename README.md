@@ -1,6 +1,6 @@
 # go-webmention #
 
-go-webmention is a go library and command line tool for assissting in sending
+go-webmention is a go library and command line tool for assisting in sending
 webmentions.
 
 Install the library by running:
