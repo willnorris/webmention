@@ -12,6 +12,7 @@ import (
 
 	"code.google.com/p/cascadia"
 	"code.google.com/p/go.net/html"
+	"code.google.com/p/go.net/html/atom"
 )
 
 // htmlLink parses r as HTML and returns the URL of the first link that
@@ -30,12 +31,12 @@ func htmlLink(r io.Reader) (string, error) {
 	var f func(*html.Node) string
 	f = func(n *html.Node) string {
 		if n.Type == html.ElementNode {
-			if n.Data == "link" {
+			if n.DataAtom == atom.Link {
 				if href := parseLinkNode(n); href != "" {
 					return href
 				}
 			}
-			if n.Data == "a" && aLink == "" {
+			if n.DataAtom == atom.A && aLink == "" {
 				aLink = parseLinkNode(n)
 			}
 		}
@@ -62,10 +63,10 @@ func parseLinkNode(n *html.Node) string {
 
 	var href, rel string
 	for _, a := range n.Attr {
-		if a.Key == "href" {
+		if a.Key == atom.Href.String() {
 			href = a.Val
 		}
-		if a.Key == "rel" {
+		if a.Key == atom.Rel.String() {
 			rel = a.Val
 		}
 	}
