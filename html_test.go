@@ -37,8 +37,6 @@ func TestHtmlLink(t *testing.T) {
 		{`<link href="foo">`, ""},
 		// multiple links, only one for webmention
 		{`<a href="foo" rel="web"><a href="bar" rel="webmention">`, "bar"},
-		// multiple webmention links, prefer <link>
-		{`<a href="foo" rel="webmention"><link href="bar" rel="webmention">`, "bar"},
 		// multiple webmention links, return first
 		{`<a href="foo" rel="webmention"><a href="bar" rel="webmention">`, "foo"},
 	}

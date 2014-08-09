@@ -24,20 +24,26 @@ func htmlLink(r io.Reader) (string, error) {
 		return "", err
 	}
 
-	// the first webmention link found in an <a> element, used only if no
-	// webmention <link> elements are found.
-	var aLink string
-
 	var f func(*html.Node) string
 	f = func(n *html.Node) string {
 		if n.Type == html.ElementNode {
-			if n.DataAtom == atom.Link {
-				if href := parseLinkNode(n); href != "" {
-					return href
+			if n.DataAtom == atom.Link || n.DataAtom == atom.A {
+				var href, rel string
+				for _, a := range n.Attr {
+					if a.Key == atom.Href.String() {
+						href = a.Val
+					}
+					if a.Key == atom.Rel.String() {
+						rel = a.Val
+					}
 				}
-			}
-			if n.DataAtom == atom.A && aLink == "" {
-				aLink = parseLinkNode(n)
+				if len(href) > 0 && len(rel) > 0 {
+					for _, v := range strings.Split(rel, " ") {
+						if v == relWebmention || v == relLegacy || v == relLegacySlash {
+							return href
+						}
+					}
+				}
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -48,34 +54,7 @@ func htmlLink(r io.Reader) (string, error) {
 		return ""
 	}
 
-	link := f(doc)
-	if link == "" {
-		link = aLink
-	}
-	return link, nil
-}
-
-// parseLinkNode returns the href value of n if it contains a webmention rel value.
-func parseLinkNode(n *html.Node) string {
-	if n == nil {
-		return ""
-	}
-
-	var href, rel string
-	for _, a := range n.Attr {
-		if a.Key == atom.Href.String() {
-			href = a.Val
-		}
-		if a.Key == atom.Rel.String() {
-			rel = a.Val
-		}
-	}
-	for _, v := range strings.Split(rel, " ") {
-		if v == relWebmention || v == relLegacy || v == relLegacySlash {
-			return href
-		}
-	}
-	return ""
+	return f(doc), nil
 }
 
 // parseLinks parses r as HTML and returns all URLs linked to (from either a
