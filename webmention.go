@@ -7,7 +7,7 @@
 // Package webmention provides functions for discovering the webmention
 // endpoint for URLs, and sending webmentions according to
 // http://webmention.org/.
-package webmention
+package webmention // import "willnorris.com/go/webmention"
 
 import (
 	"fmt"
