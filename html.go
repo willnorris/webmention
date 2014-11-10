@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"code.google.com/p/cascadia"
-	"code.google.com/p/go.net/html"
-	"code.google.com/p/go.net/html/atom"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 // htmlLink parses r as HTML and returns the URL of the first link that
