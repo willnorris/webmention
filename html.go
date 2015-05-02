@@ -10,7 +10,7 @@ import (
 	"io"
 	"strings"
 
-	"code.google.com/p/cascadia"
+	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
