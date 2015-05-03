@@ -1,7 +1,7 @@
 # webmention #
 
 webmention is a go library and command line tool for assisting in sending
-webmentions.
+[webmentions](http://indiewebcamp.com/Webmention).
 
 Install the library by running:
 
