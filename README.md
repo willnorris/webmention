@@ -1,6 +1,6 @@
-# go-webmention #
+# webmention #
 
-go-webmention is a go library and command line tool for assisting in sending
+webmention is a go library and command line tool for assisting in sending
 webmentions.
 
 Install the library by running:
@@ -13,7 +13,7 @@ To install the command line tool, run:
 
 ## License ##
 
-go-webmention is copyright Google, but is not an official Google product.  It
-is available under a [BSD License][].
+This library is copyright Google, but is not an official Google product.  It is
+available under a [BSD License][].
 
 [BSD License]: LICENSE
