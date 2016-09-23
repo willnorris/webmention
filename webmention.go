@@ -108,11 +108,10 @@ func (c *Client) DiscoverLinks(urlStr string, sel string) ([]string, error) {
 	return DiscoverLinksFromReader(resp.Body, urlStr, sel)
 }
 
-// DiscoverLinksFromReader discovers URLs in the HTML read from 'r'. Relative URLs
-// found the HTML are resolved against 'baseUrl'. These are
-// candidates for sending webmentions to.  If non-empty, sel is a CSS selector
-// identifying the root node(s) to search in for links.
-
+// DiscoverLinksFromReader discovers URLs in the HTML read from 'r'. Relative
+// URLs found the HTML are resolved against 'baseUrl'. These are candidates for
+// sending webmentions to.  If non-empty, sel is a CSS selector identifying the
+// root node(s) to search in for links.
 func DiscoverLinksFromReader(r io.Reader, baseUrl string, sel string) ([]string, error) {
 	// TODO: should we include HTTP header links?
 	links, err := parseLinks(r, sel)
