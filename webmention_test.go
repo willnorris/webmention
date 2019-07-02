@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func testServer() (*http.ServeMux, *httptest.Server, func()) {
@@ -121,5 +123,38 @@ func TestExtractEndpoint(t *testing.T) {
 		} else if got != tt.want {
 			t.Errorf("extractEndpoint(%q) returned %v, want %v", raw, got, tt.want)
 		}
+	}
+}
+
+func TestDiscoverLinks(t *testing.T) {
+	mux, server, cleanup := testServer()
+	defer cleanup()
+	client := New(nil)
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `<html>
+<head><link href="/a"></head>
+<body><a href="http://example.com/"></a></body>
+</html>`)
+	})
+
+	// no selector
+	got, err := client.DiscoverLinks(server.URL, "")
+	if err != nil {
+		t.Errorf("DiscoverLinks returned error: %v", err)
+	}
+	want := []string{server.URL + "/a", "http://example.com/"}
+	if !cmp.Equal(got, want) {
+		t.Errorf("DiscoverLinks returned %v, want %v", got, want)
+	}
+
+	// with selector
+	got, err = client.DiscoverLinks(server.URL, "body")
+	if err != nil {
+		t.Errorf("DiscoverLinks returned error: %v", err)
+	}
+	want = []string{"http://example.com/"}
+	if !cmp.Equal(got, want) {
+		t.Errorf("DiscoverLinks returned %v, want %v", got, want)
 	}
 }
