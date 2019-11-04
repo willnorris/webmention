@@ -1,7 +1,7 @@
 # webmention
 
 [![GoDoc](https://godoc.org/willnorris.com/go/webmention?status.svg)](https://godoc.org/willnorris.com/go/webmention)
-[![Build Status](https://travis-ci.org/willnorris/webmention.svg?branch=master)](https://travis-ci.org/willnorris/webmention)
+[![Test Status](https://github.com/willnorris/webmention/workflows/tests/badge.svg)](https://github.com/willnorris/webmention/actions?query=workflow%3Atests)
 [![Test Coverage](https://codecov.io/gh/willnorris/webmention/branch/master/graph/badge.svg)](https://codecov.io/gh/willnorris/webmention)
 
 webmention is a go library and command line tool for assisting in sending
