@@ -1,6 +1,6 @@
 # webmention
 
-[![GoDoc](https://godoc.org/willnorris.com/go/webmention?status.svg)](https://godoc.org/willnorris.com/go/webmention)
+[![GoDoc](https://img.shields.io/static/v1?label=godoc&message=reference&color=blue)](https://pkg.go.dev/willnorris.com/go/webmention)
 [![Test Status](https://github.com/willnorris/webmention/workflows/tests/badge.svg)](https://github.com/willnorris/webmention/actions?query=workflow%3Atests)
 [![Test Coverage](https://codecov.io/gh/willnorris/webmention/branch/master/graph/badge.svg)](https://codecov.io/gh/willnorris/webmention)
 
