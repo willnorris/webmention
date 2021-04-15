@@ -42,13 +42,16 @@ func TestClient_SendWebmention(t *testing.T) {
 	})
 
 	client := New(nil)
-	_, err := client.SendWebmention(server.URL+"/endpoint", source, target)
+	resp, err := client.SendWebmention(server.URL+"/endpoint", source, target)
+	resp.Body.Close()
 	if err != nil {
 		t.Errorf("SendWebmention returned error: %v", err)
 	}
 
 	// ensure 404 response is returned as error
-	if _, err = client.SendWebmention(server.URL+"/bad", "", ""); err == nil {
+	resp, err = client.SendWebmention(server.URL+"/bad", "", "")
+	resp.Body.Close()
+	if err == nil {
 		t.Errorf("SendWebmention did not return expected error")
 	}
 }
