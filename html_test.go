@@ -8,8 +8,9 @@ package webmention
 
 import (
 	"bytes"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestHtmlLink(t *testing.T) {
@@ -70,7 +71,7 @@ func TestParseLinks(t *testing.T) {
 		buf := bytes.NewBufferString(tt.input)
 		if got, err := parseLinks(buf, tt.sel); err != nil {
 			t.Errorf("parseLinks(%q, %q) returned error: %v", tt.input, tt.sel, err)
-		} else if want := tt.want; !reflect.DeepEqual(got, want) {
+		} else if want := tt.want; !cmp.Equal(got, want) {
 			t.Errorf("parseLinks(%q, %q) returned %v, want %v", tt.input, tt.sel, got, want)
 		}
 	}
