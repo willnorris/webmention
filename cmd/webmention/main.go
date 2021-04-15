@@ -39,7 +39,7 @@ var (
 func main() {
 	flag.Parse()
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, usageText)
+		fmt.Fprint(os.Stderr, usageText)
 		flag.PrintDefaults()
 	}
 
