@@ -68,6 +68,7 @@ func TestParseLink(t *testing.T) {
 	}{
 		{`</foo>; rel="a"`, Link{"/foo", []string{"a"}}},
 		{`</foo>; rel="a b"; rel="c"`, Link{"/foo", []string{"a", "b"}}},
+		{`<>; rel="a"`, Link{"", []string{"a"}}},
 	}
 
 	for _, tt := range tests {

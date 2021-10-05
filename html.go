@@ -24,37 +24,40 @@ func htmlLink(r io.Reader) (string, error) {
 		return "", err
 	}
 
-	var f func(*html.Node) string
-	f = func(n *html.Node) string {
+	var f func(*html.Node) (string, error)
+	f = func(n *html.Node) (string, error) {
 		if n.Type == html.ElementNode {
 			if n.DataAtom == atom.Link || n.DataAtom == atom.A {
 				var href, rel string
+				var hrefFound, relFound bool
 				for _, a := range n.Attr {
 					if a.Key == atom.Href.String() {
 						href = a.Val
+						hrefFound = true
 					}
 					if a.Key == atom.Rel.String() {
 						rel = a.Val
+						relFound = true
 					}
 				}
-				if len(href) > 0 && len(rel) > 0 {
+				if hrefFound && relFound {
 					for _, v := range strings.Split(rel, " ") {
 						if v == relWebmention || v == relLegacy || v == relLegacySlash {
-							return href
+							return href, nil
 						}
 					}
 				}
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if link := f(c); link != "" {
-				return link
+			if link, err := f(c); err == nil {
+				return link, nil
 			}
 		}
-		return ""
+		return "", errNoWebmentionRel
 	}
 
-	return f(doc), nil
+	return f(doc)
 }
 
 // parseLinks parses r as HTML and returns all URLs linked to (from either a

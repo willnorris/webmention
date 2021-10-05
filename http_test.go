@@ -13,19 +13,21 @@ import (
 
 func TestHttpLink(t *testing.T) {
 	tests := []struct {
-		input []string
-		want  string
+		input   []string
+		want    string
+		wantErr error
 	}{
-		{[]string{`<foo>; rel="webmention"`}, "foo"},
-		{[]string{`<foo>; rel="a webmention b"`}, "foo"},
-		{[]string{`<foo>; rel="http://webmention.org"`}, "foo"},
-		{[]string{`<foo>; rel="http://webmention.org/"`}, "foo"},
-		{[]string{`<foo>; rel="https://webmention.org"`}, ""},
-		{[]string{`<foo>`}, ""},
-		{[]string{`<foo>; rel="a", <bar>; rel="webmention"`}, "bar"},
-		{[]string{`<foo>; rel="a"`, `<bar>; rel="webmention"`}, "bar"},
-		{[]string{`<foo>; rel="webmention", <bar>; rel="webmention"`}, "foo"},
-		{[]string{`<foo>; rel="webmention"`, `<bar>; rel="webmention"`}, "foo"},
+		{[]string{`<foo>; rel="webmention"`}, "foo", nil},
+		{[]string{`<foo>; rel="a webmention b"`}, "foo", nil},
+		{[]string{`<foo>; rel="http://webmention.org"`}, "foo", nil},
+		{[]string{`<foo>; rel="http://webmention.org/"`}, "foo", nil},
+		{[]string{`<foo>; rel="https://webmention.org"`}, "", errNoWebmentionRel},
+		{[]string{`<foo>`}, "", errNoWebmentionRel},
+		{[]string{`<foo>; rel="a", <bar>; rel="webmention"`}, "bar", nil},
+		{[]string{`<foo>; rel="a"`, `<bar>; rel="webmention"`}, "bar", nil},
+		{[]string{`<foo>; rel="webmention", <bar>; rel="webmention"`}, "foo", nil},
+		{[]string{`<foo>; rel="webmention"`, `<bar>; rel="webmention"`}, "foo", nil},
+		{[]string{`<>; rel="webmention"`}, "", nil},
 	}
 
 	for _, tt := range tests {
@@ -33,8 +35,8 @@ func TestHttpLink(t *testing.T) {
 		for _, i := range tt.input {
 			headers.Add("Link", i)
 		}
-		if got := httpLink(headers); got != tt.want {
-			t.Errorf("httpLink(%q) got %v, want %v", headers, got, tt.want)
+		if got, gotErr := httpLink(headers); got != tt.want || gotErr != tt.wantErr {
+			t.Errorf("httpLink(%q) got %v (error %v), want %v (error %v)", headers, got, gotErr, tt.want, tt.wantErr)
 		}
 	}
 }
