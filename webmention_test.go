@@ -78,10 +78,22 @@ func TestClient_DiscoverEndpoint(t *testing.T) {
 	})
 
 	want = ""
-	if got, err := client.DiscoverEndpoint(server.URL + "/nolink"); err != nil {
-		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/good", err)
+	if got, err := client.DiscoverEndpoint(server.URL + "/nolink"); err != errNoWebmentionRel {
+		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/nolink", err)
 	} else if got != want {
-		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/good", got, want)
+		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/nolink", got, want)
+	}
+
+	// empty endpoint is a valid relative URL pointing to the page itself
+	mux.HandleFunc("/empty", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `<link href="" rel="webmention">`)
+	})
+
+	want = server.URL + "/empty" // want absolute URL
+	if got, err := client.DiscoverEndpoint(server.URL + "/empty"); err != nil {
+		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/empty", err)
+	} else if got != want {
+		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/empty", got, want)
 	}
 
 	// ensure 404 response is returned as error

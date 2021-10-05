@@ -115,9 +115,6 @@ type Link struct {
 // call ParseList to split the raw header string into its values.
 func ParseLink(s string) (link Link) {
 	link.Href, s = expectLinkValue(s)
-	if link.Href == "" {
-		return
-	}
 	s = skipSpace(s)
 	for strings.HasPrefix(s, ";") {
 		var pkey string

@@ -67,9 +67,6 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if endpoint == "" {
-		return endpoint, nil
-	}
 
 	// resolve relative endpoint URLs
 	urls, err := resolveReferences(urlStr, endpoint)
@@ -81,7 +78,7 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 
 func extractEndpoint(resp *http.Response) (string, error) {
 	// first check http link headers
-	if endpoint := httpLink(resp.Header); endpoint != "" {
+	if endpoint, err := httpLink(resp.Header); err == nil {
 		return endpoint, nil
 	}
 

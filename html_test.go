@@ -16,35 +16,36 @@ import (
 func TestHtmlLink(t *testing.T) {
 	tests := []struct {
 		input, want string
+		wantErr     error
 	}{
 		// basic links
-		{`<link href="foo" rel="webmention">`, "foo"},
-		{`<a href="foo" rel="webmention">`, "foo"},
+		{`<link href="foo" rel="webmention">`, "foo", nil},
+		{`<a href="foo" rel="webmention">`, "foo", nil},
 		// different attribute order
-		{`<link rel="webmention" href="foo">`, "foo"},
+		{`<link rel="webmention" href="foo">`, "foo", nil},
 		// line breaks inside element
 		{`<link
 			rel="webmention" 
-			href="foo">`, "foo"},
+			href="foo">`, "foo", nil},
 		// multiple rel values
-		{`<link rel="a webmention b" href="foo">`, "foo"},
+		{`<link rel="a webmention b" href="foo">`, "foo", nil},
 		// legacy rel value
-		{`<link rel="http://webmention.org" href="foo">`, "foo"},
+		{`<link rel="http://webmention.org" href="foo">`, "foo", nil},
 		// legacy rel value with slash
-		{`<link rel="http://webmention.org/" href="foo">`, "foo"},
+		{`<link rel="http://webmention.org/" href="foo">`, "foo", nil},
 		// invalid legacy rel value
-		{`<link rel="https://webmention.org" href="foo">`, ""},
+		{`<link rel="https://webmention.org" href="foo">`, "", errNoWebmentionRel},
 		// no rel value
-		{`<link href="foo">`, ""},
+		{`<link href="foo">`, "", errNoWebmentionRel},
 		// multiple links, only one for webmention
-		{`<a href="foo" rel="web"><a href="bar" rel="webmention">`, "bar"},
+		{`<a href="foo" rel="web"><a href="bar" rel="webmention">`, "bar", nil},
 		// multiple webmention links, return first
-		{`<a href="foo" rel="webmention"><a href="bar" rel="webmention">`, "foo"},
+		{`<a href="foo" rel="webmention"><a href="bar" rel="webmention">`, "foo", nil},
 	}
 
 	for _, tt := range tests {
 		buf := bytes.NewBufferString(tt.input)
-		if got, err := htmlLink(buf); err != nil {
+		if got, err := htmlLink(buf); err != tt.wantErr {
 			t.Errorf("htmlLink(%q) returned error: %v", tt.input, err)
 		} else if want := tt.want; got != want {
 			t.Errorf("htmlLink(%q) returned %v, want %v", tt.input, got, want)
