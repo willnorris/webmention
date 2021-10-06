@@ -69,7 +69,7 @@ func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
 	}
 
 	// resolve relative endpoint URLs
-	urls, err := resolveReferences(urlStr, endpoint)
+	urls, err := resolveReferences(resp.Request.URL.String(), endpoint)
 	if err != nil {
 		return "", err
 	}

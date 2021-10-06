@@ -96,6 +96,23 @@ func TestClient_DiscoverEndpoint(t *testing.T) {
 		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/empty", got, want)
 	}
 
+	// relative endpoint behind a redirect
+	mux.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("location", "redirect/relative")
+		w.WriteHeader(http.StatusFound)
+	})
+	mux.HandleFunc("/redirect/relative", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("link", "<endpoint>; rel=webmention")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	want = server.URL + "/redirect/endpoint"
+	if got, err := client.DiscoverEndpoint(server.URL + "/redirect"); err != nil {
+		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/redirect", err)
+	} else if got != want {
+		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/redirect", got, want)
+	}
+
 	// ensure 404 response is returned as error
 	if _, err := client.DiscoverEndpoint(server.URL + "/bad"); err == nil {
 		t.Errorf("DiscoverEndpoint(%q) did not return expected error", server.URL+"/bad")
