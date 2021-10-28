@@ -13,7 +13,9 @@ import (
 	"willnorris.com/go/webmention/third_party/header"
 )
 
-var ErrNoWebmentionRel = fmt.Errorf("no webmention rel found")
+// ErrNoEndpointFound is returned when no endpoint can be found for a certain
+// target URL.
+var ErrNoEndpointFound = fmt.Errorf("no webmention rel found")
 
 // httpLink parses headers and returns the URL of the first link that contains
 // a webmention rel value.
@@ -26,5 +28,5 @@ func httpLink(headers http.Header) (string, error) {
 			}
 		}
 	}
-	return "", ErrNoWebmentionRel
+	return "", ErrNoEndpointFound
 }
