@@ -79,13 +79,11 @@ func (c *Client) discoverRequest(method, urlStr string) (string, error) {
 	defer resp.Body.Close()
 
 	if code := resp.StatusCode; code < 200 || 300 <= code {
-		_, _ = io.Copy(io.Discard, resp.Body)
 		return "", fmt.Errorf("response error: %v", resp.StatusCode)
 	}
 
 	endpoint, err := extractEndpoint(resp)
 	if err != nil {
-		_, _ = io.Copy(io.Discard, resp.Body)
 		return "", err
 	}
 
