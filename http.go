@@ -13,7 +13,7 @@ import (
 	"willnorris.com/go/webmention/third_party/header"
 )
 
-var errNoWebmentionRel = fmt.Errorf("no webmention rel found")
+var ErrNoWebmentionRel = fmt.Errorf("no webmention rel found")
 
 // httpLink parses headers and returns the URL of the first link that contains
 // a webmention rel value.
@@ -26,5 +26,5 @@ func httpLink(headers http.Header) (string, error) {
 			}
 		}
 	}
-	return "", errNoWebmentionRel
+	return "", ErrNoWebmentionRel
 }

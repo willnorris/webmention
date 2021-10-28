@@ -54,7 +54,7 @@ func htmlLink(r io.Reader) (string, error) {
 				return link, nil
 			}
 		}
-		return "", errNoWebmentionRel
+		return "", ErrNoWebmentionRel
 	}
 
 	return f(doc)

@@ -34,9 +34,9 @@ func TestHtmlLink(t *testing.T) {
 		// legacy rel value with slash
 		{`<link rel="http://webmention.org/" href="foo">`, "foo", nil},
 		// invalid legacy rel value
-		{`<link rel="https://webmention.org" href="foo">`, "", errNoWebmentionRel},
+		{`<link rel="https://webmention.org" href="foo">`, "", ErrNoWebmentionRel},
 		// no rel value
-		{`<link href="foo">`, "", errNoWebmentionRel},
+		{`<link href="foo">`, "", ErrNoWebmentionRel},
 		// multiple links, only one for webmention
 		{`<a href="foo" rel="web"><a href="bar" rel="webmention">`, "bar", nil},
 		// multiple webmention links, return first
