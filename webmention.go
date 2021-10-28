@@ -53,27 +53,47 @@ func (c *Client) SendWebmention(endpoint, source, target string) (*http.Response
 
 // DiscoverEndpoint discovers the webmention endpoint for the provided URL.
 func (c *Client) DiscoverEndpoint(urlStr string) (string, error) {
-	// TODO: do a HEAD request first and check headers, then do a GET only if necessary
-	resp, err := c.Client.Get(urlStr)
+	headEndpoint, err := c.discoverRequest(http.MethodHead, urlStr)
+	if err == nil && headEndpoint != "" {
+		return headEndpoint, nil
+	}
+
+	getEndpoint, err := c.discoverRequest(http.MethodGet, urlStr)
+	if err == nil && getEndpoint != "" {
+		return getEndpoint, nil
+	}
+
+	return "", err
+}
+
+func (c *Client) discoverRequest(method, urlStr string) (string, error) {
+	req, err := http.NewRequest(method, urlStr, nil)
 	if err != nil {
 		return "", err
 	}
-	if code := resp.StatusCode; code < 200 || 300 <= code {
-		return "", fmt.Errorf("response error: %v", resp.StatusCode)
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return "", err
 	}
 	defer resp.Body.Close()
 
+	if code := resp.StatusCode; code < 200 || 300 <= code {
+		_, _ = io.Copy(io.Discard, resp.Body)
+		return "", fmt.Errorf("response error: %v", resp.StatusCode)
+	}
+
 	endpoint, err := extractEndpoint(resp)
 	if err != nil {
+		_, _ = io.Copy(io.Discard, resp.Body)
 		return "", err
 	}
 
-	// resolve relative endpoint URLs
 	urls, err := resolveReferences(resp.Request.URL.String(), endpoint)
 	if err != nil {
 		return "", err
 	}
-	return urls[0], err
+	return urls[0], nil
 }
 
 func extractEndpoint(resp *http.Response) (string, error) {
