@@ -78,7 +78,7 @@ func TestClient_DiscoverEndpoint(t *testing.T) {
 	})
 
 	want = ""
-	if got, err := client.DiscoverEndpoint(server.URL + "/nolink"); err != errNoWebmentionRel {
+	if got, err := client.DiscoverEndpoint(server.URL + "/nolink"); err != ErrNoEndpointFound {
 		t.Errorf("DiscoverEndpoint(%q) returned error: %v", server.URL+"/nolink", err)
 	} else if got != want {
 		t.Errorf("DiscoverEndpoint(%q) returned %v, want %v", server.URL+"/nolink", got, want)
