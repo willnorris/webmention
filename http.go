@@ -15,7 +15,7 @@ import (
 
 // ErrNoEndpointFound is returned when no endpoint can be found for a certain
 // target URL.
-var ErrNoEndpointFound = fmt.Errorf("no webmention rel found")
+var ErrNoEndpointFound = fmt.Errorf("no endpoint found")
 
 // httpLink parses headers and returns the URL of the first link that contains
 // a webmention rel value.
