@@ -166,10 +166,10 @@ func expectLinkValue(s string) (token, rest string) {
 	i := 1
 	for ; i < len(s); i++ {
 		if s[i] == '>' {
-			break
+			return s[1:i], s[i+1:]
 		}
 	}
-	return s[1:i], s[i+1:]
+	return "", s
 }
 
 func expectTokenOrQuoted(s string) (value string, rest string) {
