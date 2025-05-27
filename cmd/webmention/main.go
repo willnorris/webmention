@@ -129,7 +129,7 @@ func sendWebmentions(links []link) {
 			errorf("%v", err)
 			continue
 		} else if endpoint == "" {
-			color.Println("@{!r}no webmention support@|")
+			_, _ = color.Println("@{!r}no webmention support@|")
 			continue
 		}
 
@@ -138,7 +138,7 @@ func sendWebmentions(links []link) {
 			errorf("%v", err)
 			continue
 		}
-		color.Println("@gsent@|")
+		_, _ = color.Println("@gsent@|")
 	}
 }
 
@@ -148,6 +148,6 @@ func fatalf(format string, args ...interface{}) {
 }
 
 func errorf(format string, args ...interface{}) {
-	color.Fprintf(os.Stderr, "@{!r}ERROR:@| ")
+	_, _ = color.Fprintf(os.Stderr, "@{!r}ERROR:@| ")
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }

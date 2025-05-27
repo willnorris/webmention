@@ -38,7 +38,7 @@ func New(client *http.Client) *Client {
 
 // SendWebmention sends a webmention to endpoint, indicating that source has mentioned target.
 func (c *Client) SendWebmention(endpoint, source, target string) (*http.Response, error) {
-	resp, err := c.Client.PostForm(endpoint, url.Values{
+	resp, err := c.PostForm(endpoint, url.Values{
 		"source": []string{source},
 		"target": []string{target},
 	})
@@ -72,11 +72,13 @@ func (c *Client) discoverRequest(method, urlStr string) (string, error) {
 		return "", err
 	}
 
-	resp, err := c.Client.Do(req)
+	resp, err := c.Do(req)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if code := resp.StatusCode; code < 200 || 300 <= code {
 		return "", fmt.Errorf("response error: %v", resp.StatusCode)
@@ -112,14 +114,16 @@ func extractEndpoint(resp *http.Response) (string, error) {
 // candidates for sending webmentions to.  If non-empty, sel is a CSS selector
 // identifying the root node(s) to search in for links.
 func (c *Client) DiscoverLinks(urlStr string, sel string) ([]string, error) {
-	resp, err := c.Client.Get(urlStr)
+	resp, err := c.Get(urlStr)
 	if err != nil {
 		return nil, err
 	}
 	if code := resp.StatusCode; code < 200 || 300 <= code {
 		return nil, fmt.Errorf("response error: %v", resp.StatusCode)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	return DiscoverLinksFromReader(resp.Body, urlStr, sel)
 }
 

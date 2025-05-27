@@ -37,30 +37,6 @@ func TestGetHeaderList(t *testing.T) {
 	}
 }
 
-var parseValueAndParamsTests = []struct {
-	s      string
-	value  string
-	params map[string]string
-}{
-	{`text/html`, "text/html", map[string]string{}},
-	{`text/html  `, "text/html", map[string]string{}},
-	{`text/html ; `, "text/html", map[string]string{}},
-	{`tExt/htMl`, "text/html", map[string]string{}},
-	{`tExt/htMl; fOO=";"; hellO=world`, "text/html", map[string]string{
-		"hello": "world",
-		"foo":   `;`,
-	}},
-	{`text/html; foo=bar, hello=world`, "text/html", map[string]string{"foo": "bar"}},
-	{`text/html ; foo=bar `, "text/html", map[string]string{"foo": "bar"}},
-	{`text/html ;foo=bar `, "text/html", map[string]string{"foo": "bar"}},
-	{`text/html; foo="b\ar"`, "text/html", map[string]string{"foo": "bar"}},
-	{`text/html; foo="bar\"baz\"qux"`, "text/html", map[string]string{"foo": `bar"baz"qux`}},
-	{`text/html; foo="b,ar"`, "text/html", map[string]string{"foo": "b,ar"}},
-	{`text/html; foo="b;ar"`, "text/html", map[string]string{"foo": "b;ar"}},
-	{`text/html; FOO="bar"`, "text/html", map[string]string{"foo": "bar"}},
-	{`form-data; filename="file.txt"; name=file`, "form-data", map[string]string{"filename": "file.txt", "name": "file"}},
-}
-
 func TestParseLink(t *testing.T) {
 	tests := []struct {
 		s    string
