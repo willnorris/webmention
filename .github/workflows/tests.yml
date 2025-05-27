@@ -9,7 +9,7 @@ jobs:
         go-version:
           # support the two most recent major go versions
           - 1.x
-          - 1.15.x
+          - 1.23.x
         platform: [ubuntu-latest]
         include:
           # include windows with the latest Go version
@@ -23,13 +23,13 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
 
     - name: Cache go modules
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -40,4 +40,4 @@ jobs:
 
     - name: Upload coverage to Codecov
       if: ${{ matrix.update-coverage }}
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v5
