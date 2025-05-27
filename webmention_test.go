@@ -43,14 +43,14 @@ func TestClient_SendWebmention(t *testing.T) {
 
 	client := New(nil)
 	resp, err := client.SendWebmention(server.URL+"/endpoint", source, target)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if err != nil {
 		t.Errorf("SendWebmention returned error: %v", err)
 	}
 
 	// ensure 404 response is returned as error
 	resp, err = client.SendWebmention(server.URL+"/bad", "", "")
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if err == nil {
 		t.Errorf("SendWebmention did not return expected error")
 	}
@@ -63,7 +63,7 @@ func TestClient_DiscoverEndpoint(t *testing.T) {
 
 	// valid request with link
 	mux.HandleFunc("/good", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `<link href="/endpoint" rel="webmention">`)
+		_, _ = fmt.Fprint(w, `<link href="/endpoint" rel="webmention">`)
 	})
 
 	want := server.URL + "/endpoint" // want absolute URL
@@ -86,7 +86,7 @@ func TestClient_DiscoverEndpoint(t *testing.T) {
 
 	// empty endpoint is a valid relative URL pointing to the page itself
 	mux.HandleFunc("/empty", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `<link href="" rel="webmention">`)
+		_, _ = fmt.Fprint(w, `<link href="" rel="webmention">`)
 	})
 
 	want = server.URL + "/empty" // want absolute URL
@@ -164,7 +164,7 @@ func TestDiscoverLinks(t *testing.T) {
 	client := New(nil)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `<html>
+		_, _ = fmt.Fprint(w, `<html>
 <head><link href="/a"></head>
 <body><a href="http://example.com/"></a></body>
 </html>`)
