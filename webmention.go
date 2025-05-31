@@ -1,8 +1,5 @@
-// Copyright 2014 Google Inc. All rights reserved.
-//
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file or at
-// https://developers.google.com/open-source/licenses/bsd
+// Copyright (c) The webmention project authors.
+// SPDX-License-Identifier: BSD-3-Clause
 
 // Package webmention provides functions for discovering the webmention
 // endpoint for URLs, and sending webmentions according to
